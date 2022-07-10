@@ -1,5 +1,5 @@
-const userRouter = require('./userRouter')
+const twRouter = require('./twRouter');
 
 module.exports = [
-  { routes: userRouter, path: 'user' }
-]
+  { routes: twRouter, path: '/hook' },
+];

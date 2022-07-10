@@ -1,5 +1,5 @@
 {
-  "name": "mongo-ubuntu-test",
+  "name": "binance-trading-view",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@binance/connector": "^1.11.0",
+    "binance-api-node": "^0.11.40",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",

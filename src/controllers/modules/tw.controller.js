@@ -1,19 +1,21 @@
-require('../../localStorage.js');
+require('../../../localStorage.js');
 
-class TradingViewController {
+class TwController {
   //methods
   static async push(data) {
-    const dataObj = {
+    const dataItem = {
       ...data,
       date: new Date(Date.now()),
     };
-    console.log({ dataObj });
-    let currentData = JSON.parse(localStorage.getItem('tradingView'));
-    console.log({ currentData });
-    if (!currentData) currentData = [];
-    currentData.push(dataObj);
+    let currentData;
+    const storage = localStorage.getItem('tradingView');
+    if (storage) {
+      currentData = JSON.parse(localStorage.getItem('tradingView'));
+    } else {
+      currentData = [];
+    }
+    currentData.push(dataItem);
     await localStorage.setItem('tradingView', JSON.stringify(currentData));
-    console.log({ updatedLS: localStorage.getItem('tradingView') });
   }
   
   
@@ -25,8 +27,18 @@ class TradingViewController {
   
   // handlers
   async handleTwHook(req, res) {
+    console.log({
+      host: req.host,
+      path: req.path,
+      params: req.params,
+      query: req.query,
+      oirinalUrl: req.originalUrl,
+      body: req.body,
+      url: req.url,
+      fullPath: req.baseUrl + req.path,
+    });
     try {
-      const { push } = TradingViewController;
+      const { push } = TwController;
       const { data } = req.body ?? null;
       const { pair } = req.params ?? null;
       const dataItem = {
@@ -45,7 +57,7 @@ class TradingViewController {
   
   async getStorageData(req, res) {
     try {
-      const response = { success: true, data: TradingViewController.data };
+      const response = { success: true, data: TwController.data };
       res.json(response).status(200);
     } catch (e) {
       const response = { success: false, data: { error: e.message } };
@@ -55,4 +67,4 @@ class TradingViewController {
   }
 }
 
-module.exports = new TradingViewController();
+module.exports = new TwController();

@@ -1,15 +1,16 @@
 require('dotenv').config();
-require('../localStorage');
+// require('../localStorage');
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(morgan('dev'));
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+app.use(cors());
 
 app.get('/', (req, res) => {
   console.log(req.hostname);

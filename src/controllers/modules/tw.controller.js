@@ -1,52 +1,17 @@
-require('../../../localStorage.js');
+const binance = require('../../api/binance.api');
 
 class TwController {
-  //methods
-  static async push(data) {
-    const dataItem = {
-      ...data,
-      date: new Date(Date.now()),
-    };
-    let currentData;
-    const storage = localStorage.getItem('tradingView');
-    if (storage) {
-      currentData = JSON.parse(localStorage.getItem('tradingView'));
-    } else {
-      currentData = [];
-    }
-    currentData.push(dataItem);
-    await localStorage.setItem('tradingView', JSON.stringify(currentData));
-  }
-  
-  
-  //getters
-  static get data() {
-    const data = JSON.parse(localStorage.getItem('tradingView'));
-    return data ?? [];
-  }
   
   // handlers
-  async handleTwHook(req, res) {
-    console.log({
-      host: req.host,
-      path: req.path,
-      params: req.params,
-      query: req.query,
-      oirinalUrl: req.originalUrl,
-      body: req.body,
-      url: req.url,
-      fullPath: req.baseUrl + req.path,
-    });
+  async getTwHook(req, res) {
     try {
-      const { push } = TwController;
-      const { data } = req.body ?? null;
-      const { pair } = req.params ?? null;
-      const dataItem = {
-        pair: pair.toLowerCase() ?? null,
-        data: data,
-      };
-      await push(dataItem);
-      const response = { success: true, data };
+      const { symbol, side, quantity } = req.body ?? null;
+      console.log({ symbol, side, quantity });
+      let positions = await binance.futuresPositionRisk();
+      positions = positions.find((item) => item.symbol === symbol);
+      let response = 'not created';
+      if (side === 'BUY' && Number(positions.positionAmt) <= 0) response = await binance.futuresMarketBuy(symbol, quantity);
+      if (side === 'SELL' && Number(positions.positionAmt) >= 0) response = await binance.futuresMarketSell(symbol, quantity);
       res.json(response).status(200);
     } catch (e) {
       const response = { success: false, data: { error: e.message }, where: 'handleTwHook' };
@@ -55,12 +20,23 @@ class TwController {
     }
   }
   
-  async getStorageData(req, res) {
+  async getBalance(req, res) {
     try {
-      const response = { success: true, data: TwController.data };
-      res.json(response).status(200);
+      let response = await binance.futuresBalance();
+      res.json(response.filter((item) => Number(item.balance) ?? 0 > 0)).status(200);
     } catch (e) {
-      const response = { success: false, data: { error: e.message } };
+      const response = { success: false, data: { error: e.message }, where: 'handleTwHook' };
+      console.log(response);
+      res.json(response).status(400);
+    }
+  }
+  
+  async getPositions(req, res) {
+    try {
+      let response = await binance.futuresPositionRisk();
+      res.json(response.filter((item) => Number(item.positionAmt) ?? 0 > 0)).status(200);
+    } catch (e) {
+      const response = { success: false, data: { error: e.message }, where: 'handleTwHook' };
       console.log(response);
       res.json(response).status(400);
     }

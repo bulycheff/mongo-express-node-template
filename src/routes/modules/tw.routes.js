@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const { twController } = require('../../controllers');
 
-router.post('/:pair', twController.handleTwHook);
-router.get('/data', twController.getStorageData);
+router.get('/balance', twController.getBalance);
+router.get('/positions', twController.getPositions);
+router.post('/', twController.getTwHook);
 
 module.exports = router;

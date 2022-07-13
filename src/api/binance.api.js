@@ -1,11 +1,8 @@
 require('dotenv').config();
-
-const { default: Binance } = require('binance-api-node');
-
-const client = () => Binance({
-  apiKey: process.env.API_KEY,
-  apiSecret: process.env.API_SECRET,
-  getTime: () => Date.now(),
+const Binance = require('node-binance-api');
+const binance = new Binance().options({
+  APIKEY: process.env.API_KEY,
+  APISECRET: process.env.API_SECRET,
 });
 
-module.exports = client;
+module.exports = binance;
